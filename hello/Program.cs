@@ -18,11 +18,23 @@ namespace hello
                 .AddEnvironmentVariables(prefix: "ASPNETCORE_")
                 .Build();
 
-            var host = new WebHostBuilder()
+            var hostBuilder = new WebHostBuilder()
                 .UseConfiguration(config)
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
+                .UseStartup<Startup>()
+                .UseUrls("http://*:5000/");
+
+            if(Environment.GetEnvironmentVariable("HELLODOCKER") == null)
+            {
+                var distPath = Path.Combine(Directory.GetCurrentDirectory(), "dist");
+                hostBuilder
+                    .UseContentRoot(Path.Combine(distPath))
+                    .UseWebRoot(Path.Combine(distPath));
+            }
+
+            var host = hostBuilder
                 .UseStartup<Startup>()
                 .Build();
 
